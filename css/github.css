@@ -9,16 +9,20 @@ body, html, div, h1, h2, h3, h4, h5, p{
 #header {
     background: url(https://github.com/images/modules/header/background-v2.png) repeat-x;
     width: 100%;
-    height: 36px;
+    height: 50px;
     position: relative;
     border-bottom: 1px solid #DDD;
 }
-#header h1 { font-weight: 100; margin: 9px;}
+#header img {float:left;}
+#header h1 { font-weight: 100; margin: 9px; float:left;}
 #header a { position: absolute; right: 9px; bottom: 9px; }
 
-#repoListDisplay { padding: 9px;}
-#repoListDisplay h2 { padding: 0 0 6px 0; font-weight: 100;}
-#repoListDisplay p { padding: 0 0 6px 0; color: #666; font-weight: 100; font-size: 13px;}
+/** Shared Display styles */
+#repoListDisplay, #loginDisplay { padding: 9px;}
+#repoListDisplay h2, #loginDisplay h2 { padding: 0 0 6px 0; font-weight: 100;}
+#repoListDisplay p, #loginDisplay p { padding: 0 0 6px 0; color: #666; font-weight: 100; font-size: 13px;}
+
+/** repoListDisplay specific */
 #repoListDisplay ul { 
     list-style: none; 
     margin: 0; padding: 0; 
@@ -29,3 +33,9 @@ body, html, div, h1, h2, h3, h4, h5, p{
 #repoListDisplay li:hover{ background-color: #F5F5F5; }
 #repoListDisplay li span { color: #444; }
 #repoListDisplay li a {display: block; color: #339; text-decoration: none; font-size: 13px;}
+
+/** loginDisplay specific */
+#loginDisplay a { 
+    display: block; float: left; padding: 9px; margin: 9px;
+    font-size: 13px; color: #FFF; text-decoration: none; font-weight: bold;
+    background: #777; box-shadow: 1px 1px 0px #333; text-shadow: 1px 1px 0px #333;  border-radius: 9px; }

@@ -43,7 +43,7 @@ class GitHubDisplay extends Display
     @appPanel = $ '<div id="appPanel"></div>'
     @appPanelContent = $ '<div/>'
     
-    @headerPanel = $ '<div id="header"><h1>Reportocat</h1></div>'
+    @headerPanel = $ '<div id="header"><img src="/reportocat.png" /><h1>Reportocat</h1></div>'
     @logoutButton = $ '<a href="javascript:void(0);">Logout</a>'
     @logoutButton.appendTo @headerPanel
     
