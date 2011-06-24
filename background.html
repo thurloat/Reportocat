@@ -1,0 +1,19 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <script type="text/javascript" src="/lib/oauth/chrome_ex_oauthsimple.js"></script>
+    <script type="text/javascript" src="/lib/oauth/chrome_ex_oauth.js"></script>
+    <script type="text/javascript">
+      var requests = [];
+      var oauth = ChromeExOAuth.initBackgroundPage({
+        'authorize_url': 'https://github.com/login/oauth/authorize',
+        'access_url': 'https://github.com/login/oauth/access_token',
+        'consumer_key': 'd1ecc6a8230350499c68',
+        'consumer_secret': 'ae14e88bd88fb75695d073b37eb085e5fc9d329a',
+        'scope': 'user,public_repo,gist,repo'
+      });
+    </script>
+  </head>
+  <body>
+  </body>
+</html>

@@ -1,0 +1,31 @@
+body, html, div, h1, h2, h3, h4, h5, p{
+    font-family: Helvetica, arial;
+    margin: 0; padding: 0;
+    display: block;
+}
+
+#application{ width: 430px; height: 500px; overflow: hidden;}
+
+#header {
+    background: url(https://github.com/images/modules/header/background-v2.png) repeat-x;
+    width: 100%;
+    height: 36px;
+    position: relative;
+    border-bottom: 1px solid #DDD;
+}
+#header h1 { font-weight: 100; margin: 9px;}
+#header a { position: absolute; right: 9px; bottom: 9px; }
+
+#repoListDisplay { padding: 9px;}
+#repoListDisplay h2 { padding: 0 0 6px 0; font-weight: 100;}
+#repoListDisplay p { padding: 0 0 6px 0; color: #666; font-weight: 100; font-size: 13px;}
+#repoListDisplay ul { 
+    list-style: none; 
+    margin: 0; padding: 0; 
+    border-top: 1px solid #999; border-bottom: 1px solid #999;
+    height: 300px; 
+    overflow-y: scroll;}
+#repoListDisplay li { padding: 9px;}
+#repoListDisplay li:hover{ background-color: #F5F5F5; }
+#repoListDisplay li span { color: #444; }
+#repoListDisplay li a {display: block; color: #339; text-decoration: none; font-size: 13px;}
