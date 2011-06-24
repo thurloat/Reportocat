@@ -1,0 +1,35 @@
+              _                         
+             /_/_  _  _  __/__  _  _ _/_
+            / \/_'/_//_// / /_//_ /_|/  
+                 /    octo-awsome                     
+
+## Quickly Log GitHub issues via chrome extension. 
+
+*Reportocat* is a Chrome Extension to allow you to quickly log issues to GitHub projects in sessions.
+
+The application is written in CoffeeScript using the **Americano** MVP Framework. 
+
+It uses a heavily modified version of ChromeExOAuth written by the Google Team and @bremac that was changed
+to support OAuth 2.0 rather than 1.0a spec.
+
+# Feature Map
+
+ - GitHub OAuth
+    - Maintain log-innyness
+ - Starting a Session
+    - Selecting a Repo for your session
+ - Using a Session
+    - Keeps track of how many issues were submitted this session
+    - Quickly log an issue by only filling out a minimal UI
+        - Optionally Attach screenshots
+            - Doodle on them
+        - Be shown link to new ticket and a "Create another" button
+ - Ending a Session
+    - Display session stats
+    - Offer a "tweet" button to flex your issue logging chops.
+ 
+# Compile Steps
+
+Compile steps have been put into `build.sh` because Coffeescript was clobbering the JS when it would over-write the old one.
+
+    $ ./build.sh
