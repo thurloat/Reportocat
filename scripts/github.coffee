@@ -1,3 +1,13 @@
+## Reportocat
+# *Reportocat* is a Chrome Extension to allow you to quickly log issues to GitHub projects in sessions.
+#
+# The application is written in CoffeeScript using the **Americano** MVP Framework.
+
+
+## GitHubPresenter ##
+# This is the Main Presenter for the Reportocat application. This controls
+# the workflow between views and is responsible for maintaining overall
+# state.
 class GitHubPresenter extends Presenter
   
   @PRESS =
@@ -45,7 +55,10 @@ class GitHubPresenter extends Presenter
   makeForward: (toShow) ->
     toShow.ensureBound()
     @display.replaceWidget toShow.getDisplay().asWidget()
-      
+
+## GitHubDisplay ##
+# This is the container for all of the views within the application.
+# It's pretty much just a wrapper for the views of the sub-presenters to live.
 class GitHubDisplay extends Display
 
   constructor: ->
@@ -70,6 +83,9 @@ class GitHubDisplay extends Display
     @appPanelContent.empty()
     @appPanelContent.append widget
 
+## LoginPresenter ##
+# The Login Presenter handles the login process through oauth, as well as
+# displaying the login view to the user.
 class LoginPresenter extends Presenter
   
   @PRESS =
@@ -87,7 +103,8 @@ class LoginPresenter extends Presenter
       @service.logout()
       @service.startAuth()
   
-
+## LoginDisplay ##
+# Displays the OAuth button, and instructions to the user.
 class LoginDisplay extends Display
   
   constructor: ->
@@ -103,7 +120,9 @@ class LoginDisplay extends Display
   getOAuthButton: -> @oauthButton[0]
   
   asWidget: -> @loginPanel[0]
-  
+
+## StartSessionPresenter ##
+# This bad boy gets the session workflow started anew
 class StartSessionPresenter extends Presenter
   
   @PRESS = 
@@ -115,7 +134,10 @@ class StartSessionPresenter extends Presenter
   onBind: ->
     @registerHandler "click", @display.getStartSessionButton(), (event) =>
       @eventBus.fire "newSession" 
-  
+
+## StartSessionDisplay ##
+# Displays instructions, as well as the action button for the user to start the
+# session.
 class StartSessionDisplay extends Display
 
   constructor: ->
@@ -135,6 +157,9 @@ class StartSessionDisplay extends Display
   getStartSessionButton: -> @startSessionButton[0]
   asWidget: -> @sessionPanel[0]
 
+## RepoListPresenter ##
+# In charge of displaying a list of Repositories for the user to choose from 
+# during the Start Session workflow.
 class RepoListPresenter extends Presenter
   
   @PRESS =
@@ -166,7 +191,9 @@ class RepoListPresenter extends Presenter
     
     @display.addRepo repoListItemPresenter.getDisplay().asWidget()
     @repos.push(repo)
-    
+
+## RepoListDisplay ##
+# Displays a sexy list of repos for the presenter.  
 class RepoListDisplay extends Display
   
   constructor: ->
@@ -187,7 +214,9 @@ class RepoListDisplay extends Display
     @listItems = []
     @list.empty()
     
-
+## RepoListItemPresenter ##
+# In charge of an individual Repository that lives in the RepoListPresenter,
+# it's display and events.
 class RepoListItemPresenter extends Presenter
   @PRESS =
     display: 'RepoListItemDisplayType'
@@ -205,7 +234,9 @@ class RepoListItemPresenter extends Presenter
         @display.showForked()
     
   setRepo: (@repo) ->
-  
+
+## RepoListItemDisplay ##
+# Visual representation of our little RepoListItemPresenter
 class RepoListItemDisplay extends Display
   constructor: ->
     @panel = $ '<li></li>'
@@ -228,6 +259,8 @@ class RepoListItemDisplay extends Display
 
   asWidget: -> @panel[0]
 
+## GitHubRepo ##
+# A Model class that represents a GitHub Repository.
 class GitHubRepo
   constructor: (@json) ->
     @apiUrl = @json.url
@@ -246,7 +279,8 @@ class GitHubRepo
     @pushedAt = @json.pushed_at
     @createdAt = @json.created_at
     
-    
+## GitHubUser ##
+# A Model class that represents a GitHub User.
 class GitHubUser
   constructor: (@json) ->
     @id = @json.id
@@ -255,6 +289,10 @@ class GitHubUser
     @githubUrl = @json.url
   
   
+## GitHubService ##
+# The GitHub API interaction object. Makes calls into the background page's 
+# oauth object on behalf of the application. Add to me if you ever need to talk
+# to GitHub.
 class GitHubService
   
   @PRESS = 
@@ -264,25 +302,44 @@ class GitHubService
     eventBus: 'getEventBus'
     logger: 'getLogger'
   
+  ##### constructor ####
+  # Builds a new GitHub service object with the api root provided
   constructor: (@oauth) ->
     @api_root = "https://api.github.com"
     
-    
+  ##### logout ####
+  # Clears all OAuth Tokens stored for this application from localstorage.
   logout: -> @oauth.clearTokens()
 
+  ##### startAuth ####
+  # Start the OAuth flow in the gadget, fires the loginSuccess event on complete.
   startAuth: -> 
     @oauth.authorize =>
       @eventBus.fire "loginSuccess"
-      
+  
+  ##### getUserRepoList ####
+  # Gets all of the repos that the user has access to (private and public)
+  # 
+  #  - callback {function} A callback function that expects a list of *GitHubRepo*
   getUserRepoList: (callback) ->
     @oauth.sendSignedRequest @api_root + '/user/repos', (responseText, xhr) =>
       jsonResult = $.parseJSON responseText
       repos = (new GitHubRepo repo for repo in jsonResult)
       callback repos
-        
+  
+  ##### loggedIn ####
+  # A Check with the background page's oauth object to see if there are any
+  # tokens living for our app.
   loggedIn: -> @oauth.hasToken()
+  
+  ##### inSession ####
+  # A check to see if a Session has been started yet by the user.
   inSession: -> 
 
+## Application ##
+# The Application class brings together all of the initial services for
+# the app, adds them to the EspressoMachine for future presenters to bind to.
+# Then handles the initial call into the main presenter.
 class Application
   
   esp = new EspressoMachine
@@ -291,6 +348,7 @@ class Application
   hasRun = false
   
   run: ->
+    # only run the application once
     if hasRun
       return
     hasRun = true
@@ -300,7 +358,7 @@ class Application
     esp.register('getLogger', -> logger)
     esp.register('getRootPanel', -> $('#application'))
     
-    # create singleton the display classes and register with the Espresso Machine
+    # create the singleton display classes and register with the Espresso Machine
     ghDisplay = new GitHubDisplay
     loginDisplay = new LoginDisplay
     repoListDisplay = new RepoListDisplay
@@ -314,17 +372,18 @@ class Application
     # create the factory display classes and register them with the Espresso Machine.
     esp.register 'RepoListItemDisplayType', -> new RepoListItemDisplay  
     
-    # reach into the background.html page for the oauth info.
-    backgroundPage = chrome.extension.getBackgroundPage()
+    # reach into the background.html page for the oauth info &
     # register the chrome extension's oauth with the Espresso Machine
+    backgroundPage = chrome.extension.getBackgroundPage()
     esp.register('getOAuth', -> backgroundPage.oauth)
     
-    # press the GitHub service which relies on the oauth.
+    # press the GitHub service which relies on the oauth, then register it
+    # with the Espresso Machine.
     gh = esp.create(GitHubService)
-    
-    # Register the github service.
     esp.register 'getService', -> gh
 
+    # Create and register the initial presenters that the GitHub Presenter
+    # needs to start up the application.
     loginPresenter = esp.create LoginPresenter
     esp.register 'getLoginPresenter', -> loginPresenter
     
@@ -334,13 +393,15 @@ class Application
     startSessionPresnter = esp.create StartSessionPresenter
     esp.register 'getStartSessionPresenter', -> startSessionPresnter
     
+    # Finally, start your engines and bind the main presenter.
     ghPresenter = esp.create GitHubPresenter
     ghPresenter.bind()
     
+    # Add the main presenter's widget to the RootPanel
     esp.getRootPanel().empty()
     esp.getRootPanel().append ghPresenter.getDisplay().asWidget()
-  
-    
+
+
 @ready =>
   @app = new Application()
   @app.run()
