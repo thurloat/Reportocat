@@ -317,6 +317,15 @@ class GitHubService
     @oauth.authorize =>
       @eventBus.fire "loginSuccess"
   
+  ##### getUser ####
+  # Gets the currently logged in user
+  # 
+  #  - callback {function} A Callback function that expects a *GitHubUser*
+  getUser: (callback) ->
+    @oauth.sendSignedRequest @apo_root + '/user', (responseText, xhr) =>
+      jsonResult = @.parseJSON responseText
+      callback new GitHubUser jsonResult
+  
   ##### getUserRepoList ####
   # Gets all of the repos that the user has access to (private and public)
   # 
