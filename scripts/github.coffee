@@ -25,12 +25,11 @@ class GitHubPresenter extends Presenter
       @makeForward @repoListPresenter
       
     @registerHandler "newSession", true, (event) =>
-      @makeForward @repoListPresneter
+      @makeForward @repoListPresenter
     
     # Show login page if required.
     if not @service.loggedIn()
       # OAuth borked, Display the oauth start page.
-      @loginPresenter.bind()
       @display.hideLogoutButton()
       @makeForward @loginPresenter
     else
@@ -41,7 +40,6 @@ class GitHubPresenter extends Presenter
         # continue with workflow.
         # check to see if a repo has been selected to log issues to.
         # TODO
-        @repoListPresenter.bind()
         @makeForward @repoListPresenter
 
   makeForward: (toShow) ->
@@ -93,7 +91,11 @@ class LoginPresenter extends Presenter
 class LoginDisplay extends Display
   
   constructor: ->
-    @loginPanel = $ '<div id="loginDisplay"><h2>Authorization</h2><p>In order to use the gadget, you must first do the OAuth Dance!</p></div>'
+    @loginPanel = $ '''
+      <div id="loginDisplay">
+        <h2>Authorization</h2>
+        <p>In order to use the gadget, you must first do the OAuth Dance!</p>
+      </div>'''
     
     @oauthButton = $ '<a href="javascript:void(0);">Go, OAuth Go!</a>'
     @oauthButton.appendTo @loginPanel
@@ -111,13 +113,26 @@ class StartSessionPresenter extends Presenter
     eventBus: 'getEventBus'
     
   onBind: ->
-    # nothing yet?
+    @registerHandler "click", @display.getStartSessionButton(), (event) =>
+      @eventBus.fire "newSession" 
   
 class StartSessionDisplay extends Display
 
   constructor: ->
-    @sessionPanel = $ '<div id="startSessionDisplay"><h2>Start a new Session</h2></div>'
-    
+    @sessionPanel = $ '''
+      <div id="startSessionDisplay">
+        <h2>Start a new Session</h2>
+        <p>I\'m going to impose some workflow on you. In order to start 
+        reporting issues to a repo, you must first start a session. A 
+        Session contains information about the Repo you want to report to, as
+         well as statistics on your sessions so you can flex your QA muscles 
+         later.
+        </p>
+      </div>'''
+    @startSessionButton = $ '''<a href="javascript:void(0);">Start Session</a>'''
+    @startSessionButton.appendTo @sessionPanel
+  
+  getStartSessionButton: -> @startSessionButton[0]
   asWidget: -> @sessionPanel[0]
 
 class RepoListPresenter extends Presenter

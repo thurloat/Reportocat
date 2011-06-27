@@ -35,8 +35,7 @@ body, html, div, h1, h2, h3, h4, h5, p{
 #repoListDisplay li a {display: block; color: #339; text-decoration: none; font-size: 13px;}
 #repoListDisplay li img { float:right; }
 
-/** loginDisplay specific */
-#loginDisplay a { 
+#loginDisplay a, #startSessionDisplay a { 
     display: block; float: left; padding: 9px; margin: 9px;
     font-size: 13px; color: #FFF; text-decoration: none; font-weight: bold;
     background: #777; box-shadow: 1px 1px 0px #333; text-shadow: 1px 1px 0px #333;  border-radius: 9px; }
