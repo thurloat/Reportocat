@@ -33,3 +33,9 @@ to support OAuth 2.0 rather than 1.0a spec.
 Compile steps have been put into `build.sh` because Coffeescript was clobbering the JS when it would over-write the old one.
 
     $ ./build.sh
+    
+To see inline documentation for the app, install docco, then run
+
+    $ docco scripts/github.coffee
+    
+and open in the browser to see what's going on. 
