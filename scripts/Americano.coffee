@@ -40,9 +40,15 @@ class Presenter
     # The method to call to put the processing gears into action and
     # bind all the events   
     bind: () ->
-        @onBind()
         @bound = true
+        @onBind()
 
+    #####ensureBound#####
+    # Makes sure the presenter is bound, if not it will call bind for you
+    ensureBound: () ->
+        if not @bound
+          @bind()
+        
     #####onBind#####
     # Shoddy interface. `:P`
     onBind: () ->
