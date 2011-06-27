@@ -9,32 +9,43 @@ class GitHubPresenter extends Presenter
     service: 'getService'
     loginPresenter: 'getLoginPresenter'
     repoListPresenter: 'getRepoListPresenter'
+    startSessionPresenter: 'getStartSessionPresenter'
     
   onBind: ->
-    
+    @presenters = [@loginPresenter, @repoListPresenter, @startSessionPresenter]
+      
     @registerHandler "click", @display.getLogoutButton(), (event) =>
       console.log('logout clicked')
       @service.logout()
       
-      @makeForward @loginPresenter, @repoListPresenter
+      @makeForward @loginPresenter
     
     # After successful login attempt, show the repo list presenter.
     @registerHandler "loginSuccess", true, (event) =>
-      @makeForward @repoListPresenter, @loginPresenter
+      @makeForward @repoListPresenter
       
+    @registerHandler "newSession", true, (event) =>
+      @makeForward @repoListPresneter
+    
     # Show login page if required.
     if not @service.loggedIn()
       # OAuth borked, Display the oauth start page.
-      @makeForward @loginPresenter, @repoListPresenter
+      @loginPresenter.bind()
+      @display.hideLogoutButton()
+      @makeForward @loginPresenter
     else
-      # continue with workflow.
-      # check to see if a repo has been selected to log issues to.
-      # TODO
-      @makeForward @repoListPresenter, @loginPresenter
+      if not @service.inSession()
+        # Show the 'welcome' / 'start new session' screen
+        @makeForward @startSessionPresenter
+      else
+        # continue with workflow.
+        # check to see if a repo has been selected to log issues to.
+        # TODO
+        @repoListPresenter.bind()
+        @makeForward @repoListPresenter
 
-  makeForward: (toShow, toHide) ->
-    toHide.unbind()
-    toShow.bind()
+  makeForward: (toShow) ->
+    toShow.ensureBound()
     @display.replaceWidget toShow.getDisplay().asWidget()
       
 class GitHubDisplay extends Display
@@ -55,7 +66,7 @@ class GitHubDisplay extends Display
   asWidget: -> @appPanel[0]
   
   getLogoutButton: -> @logoutButton[0]
-  
+  hideLogoutButton: -> @logoutButton.hide()
   replaceWidget: (widget) ->
 
     @appPanelContent.empty()
@@ -78,20 +89,36 @@ class LoginPresenter extends Presenter
       @service.logout()
       @service.startAuth()
   
-  
-  
+
 class LoginDisplay extends Display
   
   constructor: ->
-    @loginPanel = $ '<div/>'
+    @loginPanel = $ '<div id="loginDisplay"><h2>Authorization</h2><p>In order to use the gadget, you must first do the OAuth Dance!</p></div>'
     
-    @oauthButton = $ '<a href="javascript:void(0);">OAuth Go!</a>'
+    @oauthButton = $ '<a href="javascript:void(0);">Go, OAuth Go!</a>'
     @oauthButton.appendTo @loginPanel
   
   getOAuthButton: -> @oauthButton[0]
   
   asWidget: -> @loginPanel[0]
   
+class StartSessionPresenter extends Presenter
+  
+  @PRESS = 
+    display: 'StartSessionDisplayType'
+    
+  @INJECT = 
+    eventBus: 'getEventBus'
+    
+  onBind: ->
+    # nothing yet?
+  
+class StartSessionDisplay extends Display
+
+  constructor: ->
+    @sessionPanel = $ '<div id="startSessionDisplay"><h2>Start a new Session</h2></div>'
+    
+  asWidget: -> @sessionPanel[0]
 
 class RepoListPresenter extends Presenter
   
@@ -158,6 +185,9 @@ class RepoListItemPresenter extends Presenter
       @display.setName @repo.name
       @display.setSiteLink @repo.siteUrl
       @display.setSiteText @repo.siteUrl
+      
+      if @repo.fork
+        @display.showForked()
     
   setRepo: (@repo) ->
   
@@ -170,6 +200,8 @@ class RepoListItemDisplay extends Display
     
     @repoNameLabel.appendTo @panel
     @repoSiteLink.appendTo @panel
+    
+    @repoFork = $ '<img src="https://github.com/images/modules/pagehead/repostat_forks.png" />'
 
   getNameLabel: -> @repoNameLabel
   getSiteLink: -> @repoSiteLink
@@ -177,6 +209,7 @@ class RepoListItemDisplay extends Display
   setName: (text) -> @repoNameLabel.text text
   setSiteLink: (link) -> @repoSiteLink.attr href: link
   setSiteText: (text) -> @repoSiteLink.text text
+  showForked: -> @repoFork.prependTo @panel
 
   asWidget: -> @panel[0]
 
@@ -219,11 +252,12 @@ class GitHubService
   constructor: (@oauth) ->
     @api_root = "https://api.github.com"
     
+    
   logout: -> @oauth.clearTokens()
 
   startAuth: -> 
     @oauth.authorize =>
-      @eventBus.fire "loginSuccess", true
+      @eventBus.fire "loginSuccess"
       
   getUserRepoList: (callback) ->
     @oauth.sendSignedRequest @api_root + '/user/repos', (responseText, xhr) =>
@@ -232,6 +266,7 @@ class GitHubService
       callback repos
         
   loggedIn: -> @oauth.hasToken()
+  inSession: -> 
 
 class Application
   
@@ -254,10 +289,12 @@ class Application
     ghDisplay = new GitHubDisplay
     loginDisplay = new LoginDisplay
     repoListDisplay = new RepoListDisplay
+    startSessionDisplay = new StartSessionDisplay
     
     esp.register 'GitHubDisplayType', -> ghDisplay
     esp.register 'LoginDisplayType', -> loginDisplay
     esp.register 'RepoListDisplayType', -> repoListDisplay
+    esp.register 'StartSessionDisplayType', -> startSessionDisplay
     
     # create the factory display classes and register them with the Espresso Machine.
     esp.register 'RepoListItemDisplayType', -> new RepoListItemDisplay  
@@ -278,6 +315,9 @@ class Application
     
     repoListPresenter = esp.create RepoListPresenter
     esp.register 'getRepoListPresenter', -> repoListPresenter
+    
+    startSessionPresnter = esp.create StartSessionPresenter
+    esp.register 'getStartSessionPresenter', -> startSessionPresnter
     
     ghPresenter = esp.create GitHubPresenter
     ghPresenter.bind()

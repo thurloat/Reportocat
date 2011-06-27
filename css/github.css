@@ -18,9 +18,9 @@ body, html, div, h1, h2, h3, h4, h5, p{
 #header a { position: absolute; right: 9px; bottom: 9px; }
 
 /** Shared Display styles */
-#repoListDisplay, #loginDisplay { padding: 9px;}
-#repoListDisplay h2, #loginDisplay h2 { padding: 0 0 6px 0; font-weight: 100;}
-#repoListDisplay p, #loginDisplay p { padding: 0 0 6px 0; color: #666; font-weight: 100; font-size: 13px;}
+#repoListDisplay, #loginDisplay, #startSessionDisplay { padding: 9px;}
+#repoListDisplay h2, #loginDisplay h2, #startSessionDisplay h2 { padding: 0 0 6px 0; font-weight: 100;}
+#repoListDisplay p, #loginDisplay p, #startSessionDisplay p { padding: 0 0 6px 0; color: #666; font-weight: 100; font-size: 13px;}
 
 /** repoListDisplay specific */
 #repoListDisplay ul { 
@@ -33,6 +33,7 @@ body, html, div, h1, h2, h3, h4, h5, p{
 #repoListDisplay li:hover{ background-color: #F5F5F5; }
 #repoListDisplay li span { color: #444; }
 #repoListDisplay li a {display: block; color: #339; text-decoration: none; font-size: 13px;}
+#repoListDisplay li img { float:right; }
 
 /** loginDisplay specific */
 #loginDisplay a { 
